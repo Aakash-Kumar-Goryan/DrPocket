@@ -1,0 +1,14 @@
+extends layout
+
+block content
+    form(method='post' action='/form')
+        each val, index in ['Age', 'Sex','cp','trestbps','chol','fbs','restecg','thalach','exang','oldpeak','slope']
+            .form-group.row
+                label.col-sm-2.col-form-label(for='feature_'+index)=val
+                .col-sm-10
+                    input(id='feature_'+index).form-control(type='input'
+                                                            placeholder=val
+                                                            name=val)
+        .form-group.row
+            .col-sm-10
+                button.btn.btn-primary(type='submit') Sign in

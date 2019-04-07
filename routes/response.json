@@ -1,0 +1,20 @@
+{
+    responseId: "bd9abdda-e14e-4b62-bce8-0ebe90182254",
+    queryResult: {
+        queryText: "i\'m having Cough",
+        parameters: { Symptoms: [Array] },
+        allRequiredParamsPresent: true,
+        fulfillmentText: "Okay wait while I check for these signs & symptoms",
+        fulfillmentMessages: [ [Object] ],
+        intent: {
+            name: "projects/pocketdoctor-8418d/agent/intents/2e162e46-066f-4c64-a25e-0397695622d6",
+            displayName: "Signs_and_Symptoms",
+        },
+        intentDetectionConfidence: 1,
+        languageCode: "en"
+    },
+    originalDetectIntentRequest: { payload: {} },
+    session: "projects/pocketdoctor-8418d/agent/sessions/3b926699-ce4b-2da0-4da6-2f3154b59e73"
+}
+
+
