@@ -10,8 +10,12 @@ router.post('/', function(req, res) {
     console.log(req.body.queryResult.queryText);
     console.log(req.body.queryResult.parameters.Symptoms);
     let spawn = require("child_process").spawn;
+    console.log(JSON.stringify(req.body.queryResult.parameters.Symptoms));
+    
     let process = spawn('python',["./DrPocket.py",JSON.stringify(req.body.queryResult.parameters.Symptoms)] );
     // res.send("hello");
+    console.log("blah blah");
+    
     process.stdout.on('data', function(data) {
         console.log(data.toString());
         res.send(JSON.stringify({
