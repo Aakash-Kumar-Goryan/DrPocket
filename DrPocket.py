@@ -24,7 +24,7 @@ def main(filt):
     ps = PorterStemmer()
     filt = [w.replace("_", " ") for w in filt]
     filt = [ps.stem(w) for w in filt]
-    print(filt)
+    # print(filt)
     l = [0]*132
     global df_train
     for symt in filt:
