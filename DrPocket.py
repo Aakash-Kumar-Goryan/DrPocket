@@ -31,7 +31,7 @@ def main(filt):
         index = list(df_train.columns==symt).index(True)
         l[index] = 1
     l = [l]
-    print(clf.predict(l)[0])
+    print(clf.predict(l)[0],end="")
 
 #start process
 if __name__ == '__main__':
