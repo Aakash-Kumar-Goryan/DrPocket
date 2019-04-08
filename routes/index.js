@@ -41,7 +41,7 @@ router.post('/', function(req, res) {
     
     process.stderr.on('data', (data) => {
         console.log(`stderr: ${data}`);
-        res.sendStatus(500);
+        // res.sendStatus(500);
       });
       
 //       process.on('close', (code) => {
