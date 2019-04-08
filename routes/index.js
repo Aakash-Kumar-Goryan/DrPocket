@@ -18,6 +18,8 @@ router.post('/', function(req, res) {
     
     process.stdout.on('data', function(data) {
         console.log(data.toString());
+        console.log("Called !");
+        
         res.send(JSON.stringify({
             "payload": {
                 "google": {
