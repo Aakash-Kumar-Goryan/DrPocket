@@ -19,24 +19,29 @@ router.post('/', function(req, res) {
     process.stdout.on('data', function(data) {
         console.log(data.toString());
         console.log("Called !");
-        
-        res.send(JSON.stringify({
-            "payload": {
-                "google": {
-                    "expectUserResponse": false,
-                    "richResponse": {
-                        "items": [
-                            {
-                                "simpleResponse": {
-                                    "textToSpeech": "This is a python response",
-                                    "displayText": data.toString()
+        try{
+            res.send(JSON.stringify({
+                "payload": {
+                    "google": {
+                        "expectUserResponse": false,
+                        "richResponse": {
+                            "items": [
+                                {
+                                    "simpleResponse": {
+                                        "textToSpeech": "This is a python response",
+                                        "displayText": data.toString()
+                                    }
                                 }
-                            }
-                        ]
+                            ]
+                        }
                     }
                 }
-            }
-        }));
+            }));
+        }
+        catch(e){
+            console.error(e);
+            return;
+        }
 
     })
 
