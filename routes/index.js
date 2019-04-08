@@ -39,12 +39,13 @@ router.post('/', function(req, res) {
     })
 
     
-    process.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
-      });
+    // process.stderr.on('data', (data) => {
+    //     console.log(`stderr: ${data}`);
+    //   });
       
       process.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
+        res.sendStatus(500);
       });
 });
 module.exports = router;
