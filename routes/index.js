@@ -7,10 +7,10 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
-    // console.log(req.body.queryResult.queryText);
-    // console.log(req.body.queryResult.parameters.Symptoms);
-    // let spawn = require("child_process").spawn;
-    // let process = spawn('python',["./DrPocket.py",JSON.stringify(req.body.queryResult.parameters.Symptoms)] );
+    console.log(req.body.queryResult.queryText);
+    console.log(req.body.queryResult.parameters.Symptoms);
+    let spawn = require("child_process").spawn;
+    let process = spawn('python',["./DrPocket.py",JSON.stringify(req.body.queryResult.parameters.Symptoms)] );
     res.send("hello");
     // process.stdout.on('data', function(data) {
     //     console.log(data.toString());
