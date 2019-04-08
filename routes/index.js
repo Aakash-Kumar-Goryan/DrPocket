@@ -12,26 +12,26 @@ router.post('/', function(req, res) {
     let spawn = require("child_process").spawn;
     let process = spawn('python',["./DrPocket.py",JSON.stringify(req.body.queryResult.parameters.Symptoms)] );
     res.send("hello");
-    // process.stdout.on('data', function(data) {
-    //     console.log(data.toString());
-    //     res.send(JSON.stringify({
-    //         "payload": {
-    //             "google": {
-    //                 "expectUserResponse": false,
-    //                 "richResponse": {
-    //                     "items": [
-    //                         {
-    //                             "simpleResponse": {
-    //                                 "textToSpeech": "This is a python response",
-    //                                 "displayText": data.toString()
-    //                             }
-    //                         }
-    //                     ]
-    //                 }
-    //             }
-    //         }
-    //     }));
-    // })
+    process.stdout.on('data', function(data) {
+        console.log(data.toString());
+        res.send(JSON.stringify({
+            "payload": {
+                "google": {
+                    "expectUserResponse": false,
+                    "richResponse": {
+                        "items": [
+                            {
+                                "simpleResponse": {
+                                    "textToSpeech": "This is a python response",
+                                    "displayText": data.toString()
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }));
+    })
 
 });
 module.exports = router;
