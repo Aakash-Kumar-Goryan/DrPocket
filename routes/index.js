@@ -1,59 +1,88 @@
-var express = require('express');
-var router = express.Router();
+'use strict';
+let express = require('express');
+const {WebhookClient} = require('dialogflow-fulfillment');
+
+process.env.DEBUG = 'dialogflow:*'; // It enables lib debugging statements
+let router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
     res.render('index', { title: 'Express' });
 });
 
-router.post('/', function(req, res) {
-    console.log(req.body.queryResult.queryText);
-    console.log(req.body.queryResult.parameters.Symptoms);
-    let spawn = require("child_process").spawn;
-    console.log(JSON.stringify(req.body.queryResult.parameters.Symptoms));
-    
-    let process = spawn('python',["./DrPocket.py",JSON.stringify(req.body.queryResult.parameters.Symptoms)] );
-    // res.send("hello");
-    console.log("blah blah");
-    
-    process.stdout.on('data', function(data) {
-        console.log(data.toString());
-        console.log("Called !");
-        try{
-            res.send(JSON.stringify({
-                "payload": {
-                    "google": {
-                        "expectUserResponse": false,
-                        "richResponse": {
-                            "items": [
-                                {
-                                    "simpleResponse": {
-                                        "textToSpeech": "This is a python response",
-                                        "displayText": data.toString()
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }));
-        }
-        catch(e){
-            console.error(e);
-            return;
-        }
+router.post('/', function(request, response) {
+    const agent = new WebhookClient({ request, response });
+    console.log('Inside Router');
 
-    })
+    let intentMap = new Map();
+    intentMap.set('Signs_and_Symptoms', SendDiseases);
+    intentMap.set('Signs_and_Symptoms - yes',SendAboutDiseases);
 
-    
-    process.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
-        // res.sendStatus(500);
-      });
-      
-//       process.on('close', (code) => {
-//         console.log(`child process exited with code ${code}`);
-//         
-//       });
+    console.log('Router Ends');
+
+    agent.handleRequest(intentMap).then(function (data) {
+        console.log('This is: '+ data);
+    }).catch(function (err) {
+        console.log(err);
+    });
 });
+function SendDiseases (agent) {
+    let Symp = JSON.stringify(agent.parameters.Symptoms);
+    return GetDiseases(Symp).then(function (data) {
+        console.log('You might be suffering from: ' + data);
+        agent.add(data.toString());
+        agent.add('Do you want learn more about it?');
+        agent.context.set({
+            'name':'Signs_and_Symptoms-followup',
+            'lifespan': 2,
+            'parameters':{
+                'Diseases': data.toString()
+            }
+        });
+    }).catch(function (err) {
+        console.log(err);
+        agent.add('Error');
+    });
+}
+function GetDiseases(Symptoms) {
+    return new Promise(function(resolve, reject) {
+        let spawn = require("child_process").spawn;
+        let process = spawn('python',["./DrPocket.py",Symptoms] );
+
+        process.stdout.on('data', function(data) {
+            console.log("Resolved promise");
+            resolve(data);
+        });
+        process.stderr.on('data', (err) => {
+            console.log(`stderr: ${err}`);
+            reject(err);
+        });
+    })
+}
+function SendAboutDiseases (agent) {
+    let Search_keyword = agent.context.get('signs_and_symptoms-followup').parameters.Diseases;
+    console.log("Wikipedia Search: " + Search_keyword);
+    return GetAboutDiseases(Search_keyword).then(function (data) {
+        console.log('Wikipedia: ' + data);
+        agent.add(data.toString());
+    }).catch(function (err) {
+        console.log(err);
+        agent.add('Error');
+    });
+}
+function GetAboutDiseases(Search_keyword) {
+    return new Promise(function(resolve, reject) {
+        let spawn = require("child_process").spawn;
+        let process = spawn('python',["./Wikipedia.py",Search_keyword] );
+
+        process.stdout.on('data', function(data) {
+            console.log("Resolved Wiki promise");
+            resolve(data);
+        });
+        process.stderr.on('data', (err) => {
+            console.log(`stderr: ${err}`);
+            reject(err);
+        });
+    })
+}
 module.exports = router;
