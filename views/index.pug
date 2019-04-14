@@ -1,5 +1,63 @@
-extends layout
+doctype html
+html
+    head
+        meta(charset="UTF-8", name="viewport", content = "width = device-width, initial-scale = 1")
+        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css')
+        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        title=title
+    body
+        .ui.vertical.inverted.left.visible.sidebar.menu
+            a.item
+                i.home.icon
+                |     Home
+            a.item
+                i.block.layout.icon
+                |     Topics
+        .pusher
+            //.ui.grid
+            //    .four.wide.column
+            //        a
+            //    .four.wide.column
+            //        b
+            //    .four.wide.column
+            //        c
+            //    .four.wide.column
+            //        d
+            canvas#bar-chart(width='200', height='100')
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js")
+    script.
+        new Chart(document.getElementById("bar-chart"), {
+            type: 'horizontalBar',
+            data: {
+                labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+                datasets: [
+                    {
+                        label: "Population (millions)",
+                        backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                        data: [2478, 5267, 734, 784, 433]
+                    }
+                ]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                    display: true,
+                    text: 'Predicted world population (millions) in 2050'
+                },
+                scales: {
+                    xAxes: [{
+                        barPercentage: 0.5,
+                        barThickness: 50,
+                        maxBarThickness: 100,
+                        minBarLength: 2,
+                        gridLines: {
+                            offsetGridLines: true
+                        }
+                    }]
+                }
+            }
+        });
 
-block content
-  h1= title
-  p Welcome to #{title}

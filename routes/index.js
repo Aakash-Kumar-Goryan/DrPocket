@@ -1,5 +1,6 @@
 'use strict';
 let express = require('express');
+let fs = require('fs');
 const {WebhookClient} = require('dialogflow-fulfillment');
 
 process.env.DEBUG = 'dialogflow:*'; // It enables lib debugging statements
@@ -7,6 +8,8 @@ let router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
+    let rawdata = fs.readFileSync('./disease_freq.json');
+    let Symptoms_freq = JSON.parse(rawdata);
     res.render('index', { title: 'Express' });
 });
 
@@ -28,6 +31,21 @@ router.post('/', function(request, response) {
 });
 function SendDiseases (agent) {
     let Symp = JSON.stringify(agent.parameters.Symptoms);
+    let curr_symptoms = agent.parameters.Symptoms;
+    fs.readFile('./disease_freq.json',function (err,rawdata) {
+        if(err){
+            throw err;
+        }
+        let Symptoms_freq = JSON.parse(rawdata);
+        for (let i = 0; i <curr_symptoms.length; i++) {
+            Symptoms_freq[curr_symptoms[i]] += 1;
+        }
+        let data = JSON.stringify(Symptoms_freq, null, 2);
+        fs.writeFile('./disease_freq.json', data, (err) => {
+            if (err) throw err;
+            console.log('Data written to file');
+        });
+    });
     return GetDiseases(Symp).then(function (data) {
         console.log('You might be suffering from: ' + data);
         agent.add(data.toString());
