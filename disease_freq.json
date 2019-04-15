@@ -26,8 +26,8 @@
   "cough": 1,
   "high_fever": 0,
   "sunken_eyes": 0,
-  "breathlessness": 11,
-  "sweating": 11,
+  "breathlessness": 12,
+  "sweating": 12,
   "dehydration": 0,
   "indigestion": 0,
   "headache": 0,
@@ -132,5 +132,5 @@
   "red_sore_around_nose": 0,
   "yellow_crust_ooze": 0,
   "prognosis": 0,
-  "chest pain": 9
+  "chest pain": 10
 }
