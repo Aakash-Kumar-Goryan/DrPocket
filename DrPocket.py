@@ -17,21 +17,19 @@ def col_change():
 
 def main(filt):
     col_change()
-    if 'clf' not in globals():
-        global clf
-        with open('Symptoms_classifer.pkl', 'rb') as fid:
-            clf = pickle.load(fid)
-    ps = PorterStemmer()
-    filt = [w.replace("_", " ") for w in filt]
-    filt = [ps.stem(w) for w in filt]
-    # print(filt)
+    global df_train,clf,clf2
     l = [0]*132
-    global df_train
     for symt in filt:
         index = list(df_train.columns==symt).index(True)
         l[index] = 1
     l = [l]
-    print(clf.predict(l)[0],end="")
+    with open('model_full.pkl', 'rb') as fid:
+        clf = pickle.load(fid)
+    first_disease = clf.predict(l)
+    with open('model_'+ first_disease[0] +'.pkl', 'rb') as fid2:
+            clf2 = pickle.load(fid2)
+    second_disease = clf2.predict(l)
+    print('On the basis of above Symptoms similar diseases found are: \n'+first_disease[0] + ', ' + second_disease[0])
 
 #start process
 if __name__ == '__main__':
@@ -40,6 +38,4 @@ if __name__ == '__main__':
     except (ImportError,):
         import json
     result = json.loads(sys.argv[1])
-    #print(type(result))
-    #print(result)
     main(result)

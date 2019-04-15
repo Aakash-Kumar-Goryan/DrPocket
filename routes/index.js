@@ -48,7 +48,9 @@ function SendDiseases (agent) {
     });
     return GetDiseases(Symp).then(function (data) {
         console.log('You might be suffering from: ' + data);
+        // let Curr_symp = data.toString().split('$');
         agent.add(data.toString());
+
         agent.add('Do you want learn more about it?');
         agent.context.set({
             'name':'Signs_and_Symptoms-followup',
@@ -78,15 +80,30 @@ function GetDiseases(Symptoms) {
     })
 }
 function SendAboutDiseases (agent) {
-    let Search_keyword = agent.context.get('signs_and_symptoms-followup').parameters.Diseases;
-    console.log("Wikipedia Search: " + Search_keyword);
-    return GetAboutDiseases(Search_keyword).then(function (data) {
+    console.log('i am here');
+    let raw_keyword = agent.context.get('signs_and_symptoms-followup').parameters.Diseases;
+    let Search_keyword = raw_keyword.split(':')[1].split(',')
+    console.log("Wikipedia Search: " + Search_keyword[0]);
+    console.log(typeof(Search_keyword[0]));
+    return GetAboutDiseases(Search_keyword[0].trim()).then(function (data) {
         console.log('Wikipedia: ' + data);
         agent.add(data.toString());
     }).catch(function (err) {
         console.log(err);
         agent.add('Error');
     });
+        /*.then(function (data) {
+        console.log('Wikipedia: ' + data);
+        agent.add(data.toString());
+        // GetAboutDiseases(Search_keyword[1]).then(function (data) {
+        //     console.log('Wikipedia: ' + data);
+        //     agent.add(data.toString());
+        // }).catch(function (err) {
+        //     console.log(err);
+        //     agent.add('Error');
+        // });
+    })
+    */
 }
 function GetAboutDiseases(Search_keyword) {
     return new Promise(function(resolve, reject) {
