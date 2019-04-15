@@ -8,9 +8,7 @@ let router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
-    let rawdata = fs.readFileSync('./disease_freq.json');
-    let Symptoms_freq = JSON.parse(rawdata);
-    res.render('index', { title: 'Express' });
+    res.render('index', { title: 'Express'});
 });
 
 router.post('/', function(request, response) {
@@ -30,29 +28,28 @@ router.post('/', function(request, response) {
     });
 });
 function SendDiseases (agent) {
-    let Symp = JSON.stringify(agent.parameters.Symptoms);
     let curr_symptoms = agent.parameters.Symptoms;
+    fs.readFile('./disease_freq.json',function (err,rawdata) {
+        if(err){
+            throw err;
+        }
+        let Symptoms_freq = JSON.parse(rawdata);
+        for (let i = 0; i <curr_symptoms.length; i++) {
+            Symptoms_freq[curr_symptoms[i]] += 1;
+        }
+        let data = JSON.stringify(Symptoms_freq, null, 2);
+        fs.writeFile('./disease_freq.json', data, (err) => {
+            if (err) throw err;
+            console.log('Data written to file');
+        });
+    });
+    let Symp = JSON.stringify(agent.parameters.Symptoms);
     console.log('here: '+ Symp);
-    // fs.readFile('./disease_freq.json',function (err,rawdata) {
-    //     if(err){
-    //         throw err;
-    //     }
-    //     let Symptoms_freq = JSON.parse(rawdata);
-    //     for (let i = 0; i <curr_symptoms.length; i++) {
-    //         Symptoms_freq[curr_symptoms[i]] += 1;
-    //     }
-    //     let data = JSON.stringify(Symptoms_freq, null, 2);
-    //     fs.writeFile('./disease_freq.json', data, (err) => {
-    //         if (err) throw err;
-    //         console.log('Data written to file');
-    //     });
-    // });
     return GetDiseases(Symp).then(function (data) {
         console.log('You might be suffering from: ' + data);
-        let Curr_symp = data.toString().split('$');
         agent.add(data.toString());
-
         agent.add('Do you want learn more about it?');
+
         agent.context.set({
             'name':'Signs_and_Symptoms-followup',
             'lifespan': 2,
@@ -88,18 +85,23 @@ function SendAboutDiseases (agent) {
     console.log(Search_keyword);
     console.log(typeof(Search_keyword[0]));
     return GetAboutDiseases(Search_keyword[0].trim()).then(async function (data) {
-        console.log('Wikipedia: ' + Search_keyword[1]);
+        console.log(data.toString());
         agent.add(data.toString());
-        await temp(agent, Search_keyword[1])
+        await temp(agent, Search_keyword[1],Search_keyword[0])
     }).catch(function (err) {
         console.log(err);
         agent.add('Error');
     });
 }
-function temp(agent,s) {
+function temp(agent,s,s2) {
     return GetAboutDiseases(s.trim()).then(function (data) {
         console.log('Wikipedia: ' + data);
         agent.add(data.toString());
+        if (s.trim() === 'Heart attack') {
+            agent.add('Do you have your blood report?');
+        } else if (s2.trim() === 'Heart attack') {
+            agent.add('Do you have your blood report?');
+        }
     }).catch(function (err) {
         console.log(err);
         agent.add('Error');

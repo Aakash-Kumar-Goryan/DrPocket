@@ -22,13 +22,26 @@ html
             //        b
             //    .four.wide.column
             //        c
-            //    .four.wide.column
+            //    .four.wide.columnS
             //        d
-            canvas#bar-chart(width='200', height='100')
+            .chart-container(style='position: relative; height:40vh; width:70vw')
+                canvas#bar-chart
+
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js")
     script.
+        $(function () {
+            $.ajax({
+                url: "/label",
+                type: "GET",
+            }).done(function (json) {
+                console.log(json);
+                // AppendList(json);
+            }).fail(function (xhr, status) {
+                console.log('f' + status);
+            });
+        });
         new Chart(document.getElementById("bar-chart"), {
             type: 'horizontalBar',
             data: {
@@ -60,4 +73,3 @@ html
                 }
             }
         });
-

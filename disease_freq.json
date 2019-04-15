@@ -1,5 +1,5 @@
 {
-  "itching": 5,
+  "itching": 6,
   "skin_rash": 0,
   "nodal_skin_eruptions": 0,
   "continuous_sneezing": 0,
@@ -26,8 +26,8 @@
   "cough": 1,
   "high_fever": 0,
   "sunken_eyes": 0,
-  "breathlessness": 0,
-  "sweating": 0,
+  "breathlessness": 11,
+  "sweating": 11,
   "dehydration": 0,
   "indigestion": 0,
   "headache": 0,
@@ -131,5 +131,6 @@
   "blister": 0,
   "red_sore_around_nose": 0,
   "yellow_crust_ooze": 0,
-  "prognosis": 0
+  "prognosis": 0,
+  "chest pain": 9
 }
