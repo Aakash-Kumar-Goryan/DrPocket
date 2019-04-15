@@ -97,7 +97,7 @@ function temp(agent,s,s2) {
     return GetAboutDiseases(s.trim()).then(function (data) {
         console.log('Wikipedia: ' + data);
         agent.add(data.toString());
-        console.log('a ' + s.trim());
+        console.log(typeof(s.trim()));
         console.log('b ' + s2.trim());
         if (s.trim() == 'Heart attack') {
             agent.add('Do you have your blood report?');
