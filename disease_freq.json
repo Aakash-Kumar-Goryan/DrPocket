@@ -1,5 +1,5 @@
 {
-  "itching": 0,
+  "itching": 4,
   "skin_rash": 0,
   "nodal_skin_eruptions": 0,
   "continuous_sneezing": 0,
@@ -23,7 +23,7 @@
   "lethargy": 0,
   "patches_in_throat": 0,
   "irregular_sugar_level": 0,
-  "cough": 0,
+  "cough": 1,
   "high_fever": 0,
   "sunken_eyes": 0,
   "breathlessness": 0,
