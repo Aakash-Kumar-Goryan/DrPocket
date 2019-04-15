@@ -16,9 +16,11 @@ def col_change():
     df_train.columns = new_column
 
 def main(filt):
-    #col_change()
+    col_change()
     global df_train,clf,clf2
-    df_train = pd.read_csv('TrainA.csv',delimiter=',')
+    ps = PorterStemmer()
+    filt = [w.replace("_", " ") for w in filt]
+    filt = [ps.stem(w) for w in filt]
     l = [0]*132
     for symt in filt:
         index = list(df_train.columns==symt).index(True)

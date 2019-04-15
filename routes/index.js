@@ -33,20 +33,20 @@ function SendDiseases (agent) {
     let Symp = JSON.stringify(agent.parameters.Symptoms);
     let curr_symptoms = agent.parameters.Symptoms;
     console.log('here: '+ Symp);
-    fs.readFile('./disease_freq.json',function (err,rawdata) {
-        if(err){
-            throw err;
-        }
-        let Symptoms_freq = JSON.parse(rawdata);
-        for (let i = 0; i <curr_symptoms.length; i++) {
-            Symptoms_freq[curr_symptoms[i]] += 1;
-        }
-        let data = JSON.stringify(Symptoms_freq, null, 2);
-        fs.writeFile('./disease_freq.json', data, (err) => {
-            if (err) throw err;
-            console.log('Data written to file');
-        });
-    });
+    // fs.readFile('./disease_freq.json',function (err,rawdata) {
+    //     if(err){
+    //         throw err;
+    //     }
+    //     let Symptoms_freq = JSON.parse(rawdata);
+    //     for (let i = 0; i <curr_symptoms.length; i++) {
+    //         Symptoms_freq[curr_symptoms[i]] += 1;
+    //     }
+    //     let data = JSON.stringify(Symptoms_freq, null, 2);
+    //     fs.writeFile('./disease_freq.json', data, (err) => {
+    //         if (err) throw err;
+    //         console.log('Data written to file');
+    //     });
+    // });
     return GetDiseases(Symp).then(function (data) {
         console.log('You might be suffering from: ' + data);
         let Curr_symp = data.toString().split('$');
