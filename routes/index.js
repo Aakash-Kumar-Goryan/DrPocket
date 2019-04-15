@@ -99,9 +99,9 @@ function temp(agent,s,s2) {
         agent.add(data.toString());
         console.log('a ' + s.trim());
         console.log('b ' + s2.trim());
-        if (s.trim() === 'Heart attack') {
+        if (s.trim() == 'Heart attack') {
             agent.add('Do you have your blood report?');
-        } else if (s2.trim() === 'Heart attack') {
+        } else if (s2.trim() == 'Heart attack') {
             agent.add('Do you have your blood report?');
         }
     }).catch(function (err) {
