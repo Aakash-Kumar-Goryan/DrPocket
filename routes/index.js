@@ -32,6 +32,7 @@ router.post('/', function(request, response) {
 function SendDiseases (agent) {
     let Symp = JSON.stringify(agent.parameters.Symptoms);
     let curr_symptoms = agent.parameters.Symptoms;
+    console.log('here: '+ Symp);
     fs.readFile('./disease_freq.json',function (err,rawdata) {
         if(err){
             throw err;
@@ -48,7 +49,7 @@ function SendDiseases (agent) {
     });
     return GetDiseases(Symp).then(function (data) {
         console.log('You might be suffering from: ' + data);
-        // let Curr_symp = data.toString().split('$');
+        let Curr_symp = data.toString().split('$');
         agent.add(data.toString());
 
         agent.add('Do you want learn more about it?');
@@ -95,7 +96,6 @@ function SendAboutDiseases (agent) {
         agent.add('Error');
     });
 }
-
 function temp(agent,s) {
     return GetAboutDiseases(s.trim()).then(function (data) {
         console.log('Wikipedia: ' + data);
