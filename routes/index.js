@@ -82,28 +82,24 @@ function GetDiseases(Symptoms) {
 function SendAboutDiseases (agent) {
     console.log('i am here');
     let raw_keyword = agent.context.get('signs_and_symptoms-followup').parameters.Diseases;
-    let Search_keyword = raw_keyword.split(':')[1].split(',')
-    console.log("Wikipedia Search: " + Search_keyword[0]);
+    let Search_keyword = raw_keyword.split(':')[1].split(',');
+    console.log("Wikipedia Search: " + Search_keyword[1]);
+    console.log(Search_keyword);
     console.log(typeof(Search_keyword[0]));
     return GetAboutDiseases(Search_keyword[0].trim()).then(function (data) {
-        console.log('Wikipedia: ' + data);
+        console.log('Wikipedia: ' + Search_keyword[1]);
         agent.add(data.toString());
+        GetAboutDiseases(Search_keyword[1].trim()).then(function (data) {
+            console.log('Wikipedia: ' + data);
+            agent.add(data.toString());
+        }).catch(function (err) {
+            console.log(err);
+            agent.add('Error');
+        })
     }).catch(function (err) {
         console.log(err);
         agent.add('Error');
     });
-        /*.then(function (data) {
-        console.log('Wikipedia: ' + data);
-        agent.add(data.toString());
-        // GetAboutDiseases(Search_keyword[1]).then(function (data) {
-        //     console.log('Wikipedia: ' + data);
-        //     agent.add(data.toString());
-        // }).catch(function (err) {
-        //     console.log(err);
-        //     agent.add('Error');
-        // });
-    })
-    */
 }
 function GetAboutDiseases(Search_keyword) {
     return new Promise(function(resolve, reject) {
