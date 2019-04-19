@@ -2,7 +2,7 @@
 let express = require('express');
 let fs = require('fs');
 const {WebhookClient} = require('dialogflow-fulfillment');
-
+const Permission = require('actions-on-google');
 process.env.DEBUG = 'dialogflow:*'; // It enables lib debugging statements
 let router = express.Router();
 
@@ -19,8 +19,8 @@ router.post('/', function(request, response) {
     let intentMap = new Map();
     intentMap.set('Signs_and_Symptoms', SendDiseases);
     intentMap.set('Signs_and_Symptoms - yes',SendAboutDiseases);
-    intentMap.set('location',locationHandler);
-    intentMap.set('user_info',user_infoHandler);
+    intentMap.set('location',requestPermission);
+    intentMap.set('user_info',userInfo);
 
     console.log('Router Ends');
     agent.handleRequest(intentMap).then(function (data) {
@@ -29,40 +29,25 @@ router.post('/', function(request, response) {
         console.log(err);
     });
 });
-function locationHandler(conv) {
-    conv.data.requestedPermission = 'DEVICE_PRECISE_LOCATION';
-    return conv.ask(new Permission({
-        context: 'to locate you',
-        permissions: conv.data.requestedPermission,
-    }));
-
-}
-function user_infoHandler(conv, params, permissionGranted) {
-    if (permissionGranted) {
-        const {
-            requestedPermission
-        } = conv.data;
-        if (requestedPermission === 'DEVICE_PRECISE_LOCATION') {
-
-            const {
-                coordinates
-            } = conv.device.location;
-            // const city=conv.device.location.city;
-
-            if (coordinates) {
-                return conv.close(`You are at ${coordinates.latitude}`);
-            } else {
-                // Note: Currently, precise locaton only returns lat/lng coordinates on phones and lat/lng coordinates
-                // and a geocoded address on voice-activated speakers.
-                // Coarse location only works on voice-activated speakers.
-                return conv.close('Sorry, I could not figure out where you are.');
-            }
-
+const requestPermission = (agent) => {
+    agent.askForPermission('To locate you', app.SupportedPermissions.DEVICE_PRECISE_LOCATION);
+};
+const userInfo = (app) => {
+    if (app.isPermissionGranted()) {
+        const address = app.getDeviceLocation().address;
+        if (address) {
+            app.tell(`You are at ${address}`);
+        }
+        else {
+            // Note: Currently, precise locaton only returns lat/lng coordinates on phones and lat/lng coordinates
+            // and a geocoded address on voice-activated speakers.
+            // Coarse location only works on voice-activated speakers.
+            app.tell('Sorry, I could not figure out where you are.');
         }
     } else {
-        return conv.close('Sorry, permission denied.');
+        app.tell('Sorry, I could not figure out where you are.');
     }
-}
+};
 function SendDiseases (agent) {
     let curr_symptoms = agent.parameters.Symptoms;
     fs.readFile('./disease_freq.json',function (err,rawdata) {
