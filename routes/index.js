@@ -2,7 +2,8 @@
 let express = require('express');
 let fs = require('fs');
 const {WebhookClient} = require('dialogflow-fulfillment');
-const Permission = require('actions-on-google');
+const {Card, Suggestion} = require('dialogflow-fulfillment');
+const {Permission,BasicCard,SimpleResponse,Button,actionsOnGoogle} = require('actions-on-google');
 process.env.DEBUG = 'dialogflow:*'; // It enables lib debugging statements
 let router = express.Router();
 
@@ -12,42 +13,57 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(request, response) {
-    console.log(request.body);
     const agent = new WebhookClient({ request, response });
-    console.log('Inside Router');
-
     let intentMap = new Map();
     intentMap.set('Signs_and_Symptoms', SendDiseases);
     intentMap.set('Signs_and_Symptoms - yes',SendAboutDiseases);
-    intentMap.set('location',requestPermission);
+    intentMap.set('location', requestPermission);
     intentMap.set('user_info',userInfo);
-
-    console.log('Router Ends');
     agent.handleRequest(intentMap).then(function (data) {
-        console.log('WebhookClient successfully responded' + data);
+        console.log('SUCCESSFULLY RESPONDED');
     }).catch(function (err) {
         console.log(err);
     });
 });
+
 const requestPermission = (agent) => {
-    agent.askForPermission('To locate you', app.SupportedPermissions.DEVICE_PRECISE_LOCATION);
+    let conv = agent.conv();
+    const options = {
+        context: 'To address you by name and know your location',
+        permissions: ['DEVICE_PRECISE_LOCATION'],
+    };
+    conv.ask(new Permission(options));
+    agent.add(conv);
 };
-const userInfo = (app) => {
-    if (app.isPermissionGranted()) {
-        const address = app.getDeviceLocation().address;
-        if (address) {
-            app.tell(`You are at ${address}`);
-        }
-        else {
-            // Note: Currently, precise locaton only returns lat/lng coordinates on phones and lat/lng coordinates
-            // and a geocoded address on voice-activated speakers.
-            // Coarse location only works on voice-activated speakers.
-            app.tell('Sorry, I could not figure out where you are.');
+const userInfo = (agent)=> {
+    let conv = agent.conv() ;
+    if(typeof conv.request.user.permissions !== "undefined") {
+        console.log(conv.device);
+        const {coordinates} = conv.device.location;
+        if (coordinates) {
+            const screenAvailable = conv.available.surfaces.capabilities.has('actions.capability.SCREEN_OUTPUT');
+            if(screenAvailable)
+            {
+                // conv.ask(`You are at latitude: ${coordinates.latitude}, longitude: ${coordinates.longitude}`);
+                // conv.ask('This is a basic card example.');
+                conv.ask(new Card({
+                          title: `Title: this is a card title`,
+                          imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+                          text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
+                          buttonText: 'This is a button',
+                          buttonUrl: 'https://assistant.google.com/'
+                        }));
+            }
+
+        } else {
+            conv.ask('Sorry, I could not figure out where you are.');
         }
     } else {
-        app.tell('Sorry, I could not figure out where you are.');
+        conv.ask('Sorry, permission denied.');
     }
+    agent.add(conv);
 };
+
 function SendDiseases (agent) {
     let curr_symptoms = agent.parameters.Symptoms;
     fs.readFile('./disease_freq.json',function (err,rawdata) {
