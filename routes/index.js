@@ -2,8 +2,9 @@
 let express = require('express');
 let fs = require('fs');
 const {WebhookClient} = require('dialogflow-fulfillment');
-const {Card, Suggestion} = require('dialogflow-fulfillment');
-const {Permission,BasicCard,SimpleResponse,Button,actionsOnGoogle} = require('actions-on-google');
+const {Text, Card, Image, Suggestion, Payload} = require('dialogflow-fulfillment');
+const {Permission} = require('actions-on-google');
+// const {BasicCard, Button,Image} = require('actions-on-google');
 process.env.DEBUG = 'dialogflow:*'; // It enables lib debugging statements
 let router = express.Router();
 
@@ -16,7 +17,9 @@ router.post('/', function(request, response) {
     const agent = new WebhookClient({ request, response });
     let intentMap = new Map();
     intentMap.set('Signs_and_Symptoms', SendDiseases);
+    intentMap.set('Temp', EMP);
     intentMap.set('Signs_and_Symptoms - yes',SendAboutDiseases);
+    intentMap.set('Signs_and_Symptoms - yes - yes', requestPermission);
     intentMap.set('location', requestPermission);
     intentMap.set('user_info',userInfo);
     agent.handleRequest(intentMap).then(function (data) {
@@ -25,7 +28,76 @@ router.post('/', function(request, response) {
         console.log(err);
     });
 });
+const EMP = (agent) => {
+    console.log('Inside EMP');
+    // let conv = agent.conv();
+    // conv.ask(new Image({
+    //     url: 'https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/imgs/160204193356-01-cat-500.jpg',
+    //     alt: 'A cat',
+    // }));
+    // conv.ask(new BasicCard({
+    //     title: 'Card Title',
+    //     text: 'Description',
+    //     image: {
+    //         url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+    //         accessibilityText: 'Google Logo',
+    //     },
+    //     buttons: new Button({
+    //         title: 'Button Title',
+    //         url: 'https://www.google.com',
+    //     }),
+    // }));
+    // agent.add(conv);
+    // let card = new Card();
+    // card.setTitle('sample card title');
+    // card.setImage('https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png');
+    // card.setButton({ text: 'button text', url: 'https://assistant.google.com/' });
+    //
+    // agent.add(card);
 
+    // agent.add(new Image('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'));
+    // agent.add(new Suggestion('sample reply'));
+    const googlePayload = {
+        expectUserResponse: true,
+        isSsml: false,
+        noInputPrompts: [],
+        richResponse: {
+            items: [{simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}}],
+            suggestions: [{title: 'Say this'}, {title: 'or this'}],
+        },
+        systemIntent: {
+            intent: 'actions.intent.OPTION',
+            data: {
+                '@type': 'type.googleapis.com/google.actions.v2.OptionValueSpec',
+                'listSelect': {
+                    items: [
+                        {
+                            optionInfo: {key: 'key1', synonyms: ['key one']},
+                            title: 'must not be empty',
+                        },
+                        {
+                            optionInfo: {key: 'key2', synonyms: ['key two']},
+                            title: 'must not be empty, but unquie, for some reason',
+                        },
+                    ],
+                },
+            },
+        },
+    };
+    agent.add(new Payload(agent.ACTIONS_ON_GOOGLE, googlePayload));
+    // agent.add(new Card({
+    //     title: 'Card Title',
+    //     text: 'Description',
+    //     image: {
+    //         url: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+    //         accessibilityText: 'Google Logo',
+    //     },
+    //     buttons: new Button({
+    //         title: 'Button Title',
+    //         url: 'https://www.google.com',
+    //     }),
+    // }));
+};
 const requestPermission = (agent) => {
     let conv = agent.conv();
     const options = {
@@ -38,32 +110,37 @@ const requestPermission = (agent) => {
 const userInfo = (agent)=> {
     let conv = agent.conv() ;
     if(typeof conv.request.user.permissions !== "undefined") {
-        console.log(conv.device);
         const {coordinates} = conv.device.location;
         if (coordinates) {
-            const screenAvailable = conv.available.surfaces.capabilities.has('actions.capability.SCREEN_OUTPUT');
-            if(screenAvailable)
-            {
-                // conv.ask(`You are at latitude: ${coordinates.latitude}, longitude: ${coordinates.longitude}`);
-                // conv.ask('This is a basic card example.');
-                conv.ask(new Card({
-                          title: `Title: this is a card title`,
-                          imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-                          text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
-                          buttonText: 'This is a button',
-                          buttonUrl: 'https://assistant.google.com/'
-                        }));
-            }
-
+            return get_nearby_hospitals(coordinates.latitude,coordinates.longitude).then(function (data) {
+                agent.add(data.toString());
+            }).catch(function (err) {
+                console.log(err);
+                agent.add('Sorry, I could not able to find Nearby Hospital.');
+            });
         } else {
             conv.ask('Sorry, I could not figure out where you are.');
         }
     } else {
-        conv.ask('Sorry, permission denied.');
+        conv.ask("Sorry, permission denied. Can't find Nearby Hospital without you location access");
     }
     agent.add(conv);
 };
+const get_nearby_hospitals = (latitude,longitude) => {
+    return new Promise(function(resolve, reject) {
+        let spawn = require("child_process").spawn;
+        let process = spawn('python',["./nearHospital.py",latitude,longitude] );
 
+        process.stdout.on('data', function(data) {
+            console.log("Nearby Hospital Received From Python Successfully");
+            resolve(data);
+        });
+        process.stderr.on('data', (err) => {
+            console.log(`stderr: ${err}`);
+            reject(err);
+        });
+    })
+};
 function SendDiseases (agent) {
     let curr_symptoms = agent.parameters.Symptoms;
     fs.readFile('./disease_freq.json',function (err,rawdata) {
@@ -134,13 +211,14 @@ function temp(agent,s,s2) {
     return GetAboutDiseases(s.trim()).then(function (data) {
         console.log('Wikipedia: ' + data);
         agent.add(data.toString());
+        agent.add('Do you want to see Nearby Hospitals?');
         console.log(typeof(s.trim()));
         console.log('b ' + s2.trim());
-        if (s.trim() == 'Heart attack') {
-            agent.add('Do you have your blood report?');
-        } else if (s2.trim() == 'Heart attack') {
-            agent.add('Do you have your blood report?');
-        }
+        // if (s.trim() == 'Heart attack') {
+        //     agent.add('Do you have your blood report?');
+        // } else if (s2.trim() == 'Heart attack') {
+        //     agent.add('Do you have your blood report?');
+        // }
     }).catch(function (err) {
         console.log(err);
         agent.add('Error');
