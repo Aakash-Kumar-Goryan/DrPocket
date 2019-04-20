@@ -3,6 +3,8 @@ let express = require('express');
 let fs = require('fs');
 const {WebhookClient} = require('dialogflow-fulfillment');
 const {Text, Card, Image, Suggestion, Payload} = require('dialogflow-fulfillment');
+const imageUrl = `https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png`;
+const linkUrl = 'https://assistant.google.com/';
 const {Permission} = require('actions-on-google');
 // const {BasicCard, Button,Image} = require('actions-on-google');
 process.env.DEBUG = 'dialogflow:*'; // It enables lib debugging statements
@@ -57,34 +59,43 @@ const EMP = (agent) => {
 
     // agent.add(new Image('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'));
     // agent.add(new Suggestion('sample reply'));
-    const googlePayload = {
-        expectUserResponse: true,
-        isSsml: false,
-        noInputPrompts: [],
-        richResponse: {
-            items: [{simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}}],
-            suggestions: [{title: 'Say this'}, {title: 'or this'}],
-        },
-        systemIntent: {
-            intent: 'actions.intent.OPTION',
-            data: {
-                '@type': 'type.googleapis.com/google.actions.v2.OptionValueSpec',
-                'listSelect': {
-                    items: [
-                        {
-                            optionInfo: {key: 'key1', synonyms: ['key one']},
-                            title: 'must not be empty',
-                        },
-                        {
-                            optionInfo: {key: 'key2', synonyms: ['key two']},
-                            title: 'must not be empty, but unquie, for some reason',
-                        },
-                    ],
-                },
-            },
-        },
-    };
-    agent.add(new Payload(agent.ACTIONS_ON_GOOGLE, googlePayload));
+    // agent.add('here');
+    // const googlePayload = {
+    //     expectUserResponse: true,
+    //     isSsml: false,
+    //     noInputPrompts: [],
+    //     richResponse: {
+    //         items: [{simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}}],
+    //         suggestions: [{title: 'Say this'}, {title: 'or this'}],
+    //     },
+    //     systemIntent: {
+    //         intent: 'actions.intent.OPTION',
+    //         data: {
+    //             '@type': 'type.googleapis.com/google.actions.v2.OptionValueSpec',
+    //             'listSelect': {
+    //                 items: [
+    //                     {
+    //                         optionInfo: {key: 'key1', synonyms: ['key one']},
+    //                         title: 'must not be empty',
+    //                     },
+    //                     {
+    //                         optionInfo: {key: 'key2', synonyms: ['key two']},
+    //                         title: 'must not be empty, but unquie, for some reason',
+    //                     },
+    //                 ],
+    //             },
+    //         },
+    //     },
+    // };
+    // agent.add(new Payload(agent.ACTIONS_ON_GOOGLE, googlePayload));
+    agent.add(new Card({
+            title: 'card title',
+            text: 'card text',
+            imageUrl: imageUrl,
+            buttonText: 'button text',
+            buttonUrl: linkUrl,
+        }),
+    );
     // agent.add(new Card({
     //     title: 'Card Title',
     //     text: 'Description',
@@ -101,11 +112,13 @@ const EMP = (agent) => {
 const requestPermission = (agent) => {
     let conv = agent.conv();
     const options = {
-        context: 'To address you by name and know your location',
+        context: 'To get hospitals near your location',
         permissions: ['DEVICE_PRECISE_LOCATION'],
     };
     conv.ask(new Permission(options));
     agent.add(conv);
+    // agent.add(new Suggestion('yes'));
+    // agent.add(new Suggestion('no'));
 };
 const userInfo = (agent)=> {
     let conv = agent.conv() ;
@@ -113,7 +126,14 @@ const userInfo = (agent)=> {
         const {coordinates} = conv.device.location;
         if (coordinates) {
             return get_nearby_hospitals(coordinates.latitude,coordinates.longitude).then(function (data) {
-                agent.add(data.toString());
+                agent.add(new Card({
+                        title: 'Nearby Hospitals',
+                        text: data.toString()
+                        // buttonText: 'button text',
+                        // buttonUrl: linkUrl,
+                    }),
+                );
+                // agent.add(data.toString());
             }).catch(function (err) {
                 console.log(err);
                 agent.add('Sorry, I could not able to find Nearby Hospital.');
@@ -163,7 +183,8 @@ function SendDiseases (agent) {
         console.log('You might be suffering from: ' + data);
         agent.add(data.toString());
         agent.add('Do you want learn more about it?');
-
+        agent.add(new Suggestion('yes'));
+        agent.add(new Suggestion('no'));
         agent.context.set({
             'name':'Signs_and_Symptoms-followup',
             'lifespan': 2,
@@ -200,18 +221,21 @@ function SendAboutDiseases (agent) {
     console.log(typeof(Search_keyword[0]));
     return GetAboutDiseases(Search_keyword[0].trim()).then(async function (data) {
         console.log(data.toString());
-        agent.add(data.toString());
-        await temp(agent, Search_keyword[1],Search_keyword[0])
+        let disease1 = data.toString();
+        // agent.add(data.toString());
+        await temp(agent, Search_keyword[1],Search_keyword[0],disease1)
     }).catch(function (err) {
         console.log(err);
         agent.add('Error');
     });
 }
-function temp(agent,s,s2) {
+function temp(agent,s,s2,disease1) {
     return GetAboutDiseases(s.trim()).then(function (data) {
         console.log('Wikipedia: ' + data);
-        agent.add(data.toString());
+        agent.add(disease1 + '\n' + data.toString());
         agent.add('Do you want to see Nearby Hospitals?');
+        agent.add(new Suggestion('yes'));
+        agent.add(new Suggestion('no'));
         console.log(typeof(s.trim()));
         console.log('b ' + s2.trim());
         // if (s.trim() == 'Heart attack') {

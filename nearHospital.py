@@ -6,7 +6,7 @@ def helper_function(latitude,longitude):
     global data
     data=pd.read_csv("nin-health-facilities.csv", encoding = "ISO-8859-1")
     dict={}
-    num_hospitals=5
+    num_hospitals=3
     for i in range(len(data)):
         lat=data.iloc[i][8]
         long=data.iloc[i][9]
@@ -32,26 +32,26 @@ def main(latitude,longitude):
     for i in range(len(temp)):
         output_str +="Health Facility Name : "
         output_str +=str(data.iloc[temp[i]][1])
-        output_str += "\n"
+        output_str += "  \n"
         output_str +="Address : "
         output_str +=str(data.iloc[temp[i]][2])
-        output_str += "\n"
+        output_str += "  \n"
         output_str +="Street : "
         output_str +=str(data.iloc[temp[i]][3])
-        output_str += "\n"
-        output_str +="Landmark : "
-        output_str +=str(data.iloc[temp[i]][4])
-        output_str += "\n"
+        output_str += "  \n"
+        #output_str +="Landmark : "
+        #output_str +=str(data.iloc[temp[i]][4])
+        #output_str += "  \n"
         output_str +="Locality : "
         output_str +=str(data.iloc[temp[i]][5])
-        output_str += "\n"
+        output_str += "  \n"
         output_str +="Pincode : "
         output_str +=str(data.iloc[temp[i]][6])
-        output_str += "\n"
+        output_str += "  \n"
         output_str +="Landline Number : "
         output_str +=str(data.iloc[temp[i]][7])
-        output_str += "\n"
-        output_str += "\n"
+        output_str += "  \n"
+        output_str += "  \n"
     print(output_str)
 
 #start process

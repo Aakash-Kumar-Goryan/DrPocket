@@ -1,5 +1,5 @@
 {
-  "itching": 25,
+  "itching": 46,
   "skin_rash": 0,
   "nodal_skin_eruptions": 0,
   "continuous_sneezing": 0,
@@ -132,5 +132,6 @@
   "red_sore_around_nose": 0,
   "yellow_crust_ooze": 0,
   "prognosis": 0,
-  "chest pain": 10
+  "chest pain": 10,
+  "skin rash": 4
 }
