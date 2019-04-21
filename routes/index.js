@@ -22,6 +22,7 @@ router.post('/', function(request, response) {
     intentMap.set('Temp', EMP);
     intentMap.set('Signs_and_Symptoms - yes',SendAboutDiseases);
     intentMap.set('Signs_and_Symptoms - yes - yes', requestPermission);
+    intentMap.set('Signs_and_Symptoms - no - yes', requestPermission);
     intentMap.set('location', requestPermission);
     intentMap.set('user_info',userInfo);
     agent.handleRequest(intentMap).then(function (data) {
