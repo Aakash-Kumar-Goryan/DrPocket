@@ -4,7 +4,7 @@ let fs = require('fs');
 const {WebhookClient} = require('dialogflow-fulfillment');
 const {Text, Card, Image, Suggestion, Payload} = require('dialogflow-fulfillment');
 const imageUrl = `https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png`;
-const linkUrl = 'https://assistant.google.com/';
+const linkUrl = 'https://9a1729cb.ngrok.io/users';
 const {Permission} = require('actions-on-google');
 // const {BasicCard, Button,Image} = require('actions-on-google');
 process.env.DEBUG = 'dialogflow:*'; // It enables lib debugging statements
@@ -128,9 +128,9 @@ const userInfo = (agent)=> {
             return get_nearby_hospitals(coordinates.latitude,coordinates.longitude).then(function (data) {
                 agent.add(new Card({
                         title: 'Nearby Hospitals',
-                        text: data.toString()
-                        // buttonText: 'button text',
-                        // buttonUrl: linkUrl,
+                        text: data.toString(),
+                        buttonText: 'If you have your Blood Report Click Here',
+                        buttonUrl: linkUrl
                     }),
                 );
                 // agent.add(data.toString());

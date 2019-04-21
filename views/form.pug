@@ -1,14 +1,58 @@
 extends layout
-
 block content
-    form(method='post' action='/form')
-        each val, index in ['Age', 'Sex','cp','trestbps','chol','fbs','restecg','thalach','exang','oldpeak','slope']
-            .form-group.row
-                label.col-sm-2.col-form-label(for='feature_'+index)=val
-                .col-sm-10
-                    input(id='feature_'+index).form-control(type='input'
-                                                            placeholder=val
-                                                            name=val)
-        .form-group.row
-            .col-sm-10
-                button.btn.btn-primary(type='submit') Sign in
+    body
+        .container.shadow.p-3.mb-5.bg-white.rounded.border.border-secondary
+            h2.mx-auto(style='width: 400px;') Diagnosis of heart disease
+            form(method='post' action='/predict')
+                .form-group
+                    label(for='Age') Age
+                    input(id='Age', type='input', placeholder='Age (in years)', name='Age').form-control
+                .form-group
+                    label(for='Gender') Gender
+                    select( id='Gender', name='Sex').form-control
+                        option(value=1.0) Male
+                        option(value=0.0) Female
+                .form-group
+                    label(for='cp') Chest pain type
+                    select( id='cp', name='cp').form-control
+                        option(value=1.0) Typical angina
+                        option(value=2.0) Atypical angina
+                        option(value=3.0) Non-anginal pain
+                        option(value=4.0) Asymptomatic
+                .form-group
+                    label(for='trestbps') Resting blood pressure
+                    input(id='trestbps', type='input', placeholder='Resting blood pressure (in mm Hg on admission to the hospital)', name='trestbps').form-control
+                .form-group
+                    label(for='chol') Serum cholestoral in mg/dl
+                    input(id='chol', type='input', placeholder='Serum cholestoral (in mg/dl)', name='chol').form-control
+                .form-group
+                    label(for='fbs') Fasting blood sugar > 120 mg/dl
+                    select( id='fbs', name='fbs').form-control
+                        option(value=1.0) True
+                        option(value=0.0) False
+                .form-group
+                    label(for='restecg') Resting electrocardiographic results
+                    select( id='restecg', name='restecg').form-control
+                        option(value=0.0) Normal
+                        option(value=1.0) Having ST-T wave abnormality (T wave inversions and/or ST elevation or depression of > 0.05 mV)
+                        option(value=2.0) Showing probable or definite left ventricular hypertrophy by Estes' criteria
+                .form-group
+                    label(for='thalach') Maximum heart rate achieved
+                    input(id='thalach', type='input', placeholder='Maximum heart rate achieved', name='thalach').form-control
+                .form-group
+                    label(for='exang') Exercise induced angina
+                    select( id='exang', name='exang').form-control
+                        option(value=1.0) Yes
+                        option(value=0.0) No
+                .form-group
+                    label(for='oldpeak') ST depression induced by exercise relative to rest (oldpeak)
+                    input(id='oldpeak', type='input', placeholder='ST depression induced by exercise relative to rest', name='oldpeak').form-control
+                .form-group
+                    label(for='slope') The slope of the peak exercise ST segment
+                    select( id='slope', name='slope').form-control
+                        option(value=1.0) Up sloping
+                        option(value=2.0) flat
+                        option(value=3.0) down sloping
+                .form-group.row
+                    .col-sm-12
+                        button.btn.btn-secondary.btn-lg.btn-block(type='submit') Submit To Predict
