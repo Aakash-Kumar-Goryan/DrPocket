@@ -1,12 +1,12 @@
 let express = require('express');
 let router = express.Router();
-
+let fs = require('fs');
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
     let rawdata = fs.readFileSync('./disease_freq.json');
-    let lables = Object.keys(JSON.parse(rawdata));
-    // res.send(JSON.stringify(lables));
-    res.send('hello');
+    console.log(rawdata);
+    let labels = Object.keys(JSON.parse(rawdata));
+    res.send(labels);
 });
 
 module.exports = router;
